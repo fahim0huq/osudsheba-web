@@ -1,18 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getBackendUrl } from '@/lib/backend';
 import fs from 'fs';
 import path from 'path';
 
-const BACKEND_URL = (process.env.BACKEND_API_URL || 'http://localhost:3000').replace(/\/$/, '');
-
 export async function GET(req: NextRequest) {
+  let backendUrl: string;
+  try {
+    backendUrl = getBackendUrl();
+  } catch (configErr) {
+    const message = configErr instanceof Error ? configErr.message : String(configErr);
+    console.error('[/api/subscription/download] Configuration error:', message);
+    return NextResponse.redirect(new URL('/subscribe?error=config_error', req.url));
+  }
+
   try {
     const cookieToken = req.cookies.get('osudsheba_download_token')?.value;
     const urlToken = req.nextUrl.searchParams.get('token');
     const phone = req.nextUrl.searchParams.get('phone');
     const token = urlToken || cookieToken;
 
-    // 1. Verify entitlement with backend
-    const checkUrl = new URL(`${BACKEND_URL}/web-subscription/download-check`);
+    const checkUrl = new URL(`${backendUrl}/web-subscription/download-check`);
     if (token) checkUrl.searchParams.set('token', token);
     if (phone) checkUrl.searchParams.set('phone', phone);
 
@@ -28,13 +35,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL('/subscribe?error=subscription_required', req.url));
     }
 
-    // 2. Priority A: Configured public download destination (CDN / Release bucket)
     const configuredUrl = process.env.NEXT_PUBLIC_ANDROID_DOWNLOAD_URL || process.env.ANDROID_DOWNLOAD_URL;
     if (configuredUrl && configuredUrl.startsWith('http')) {
       return NextResponse.redirect(configuredUrl);
     }
 
-    // 3. Priority B: Local build APK file streaming if available
     const localApkPath = path.resolve(process.cwd(), '..', 'osudsheba', 'build', 'app', 'outputs', 'flutter-apk', 'app-debug.apk');
     if (fs.existsSync(localApkPath)) {
       const fileBuffer = fs.readFileSync(localApkPath);
@@ -49,13 +54,12 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // 4. Fallback fallback response
     return NextResponse.json({
       success: true,
       message: 'Subscription verified. Download package is being provisioned for production release.',
     });
   } catch (err: unknown) {
-    console.error('[/api/subscription/download] Download error:', err);
+    console.error(`[/api/subscription/download] Download error contacting ${backendUrl}:`, err);
     return NextResponse.redirect(new URL('/subscribe?error=verification_failed', req.url));
   }
 }

@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const BACKEND_URL = (process.env.BACKEND_API_URL || 'http://localhost:3000').replace(/\/$/, '');
+import { getBackendUrl } from '@/lib/backend';
 
 export async function POST(req: NextRequest) {
+  let backendUrl: string;
+  try {
+    backendUrl = getBackendUrl();
+  } catch (configErr) {
+    const message = configErr instanceof Error ? configErr.message : String(configErr);
+    console.error('[/api/subscription/status] Configuration error:', message);
+    return NextResponse.json(
+      { success: false, valid: false, status: 'unknown', error: 'CONFIGURATION_ERROR', message: 'Backend URL not configured in production.' },
+      { status: 500 }
+    );
+  }
+
   try {
     const cookieToken = req.cookies.get('osudsheba_download_token')?.value;
     let body: { phone?: string; downloadToken?: string } = {};
@@ -15,7 +26,7 @@ export async function POST(req: NextRequest) {
     const downloadToken = body.downloadToken || cookieToken;
     const phone = body.phone;
 
-    const response = await fetch(`${BACKEND_URL}/web-subscription/status`, {
+    const response = await fetch(`${backendUrl}/web-subscription/status`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -30,7 +41,7 @@ export async function POST(req: NextRequest) {
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch (err: unknown) {
-    console.error('[/api/subscription/status] Proxy error:', err);
+    console.error(`[/api/subscription/status] Proxy error contacting ${backendUrl}:`, err);
     return NextResponse.json(
       { success: false, valid: false, status: 'unknown' },
       { status: 500 }
