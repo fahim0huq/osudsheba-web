@@ -4,6 +4,13 @@ import fs from 'fs';
 import path from 'path';
 
 export async function GET(req: NextRequest) {
+  // 1. Direct configured public APK download URL (e.g. GitHub Release / Cloudflare R2 / S3)
+  const configuredUrl = process.env.NEXT_PUBLIC_ANDROID_DOWNLOAD_URL || process.env.ANDROID_DOWNLOAD_URL;
+  if (configuredUrl && configuredUrl.startsWith('http')) {
+    return NextResponse.redirect(configuredUrl);
+  }
+
+  // 2. Otherwise, check subscription with backend
   let backendUrl: string;
   try {
     backendUrl = getBackendUrl();
@@ -33,11 +40,6 @@ export async function GET(req: NextRequest) {
 
     if (!checkRes.ok) {
       return NextResponse.redirect(new URL('/subscribe?error=subscription_required', req.url));
-    }
-
-    const configuredUrl = process.env.NEXT_PUBLIC_ANDROID_DOWNLOAD_URL || process.env.ANDROID_DOWNLOAD_URL;
-    if (configuredUrl && configuredUrl.startsWith('http')) {
-      return NextResponse.redirect(configuredUrl);
     }
 
     const localApkPath = path.resolve(process.cwd(), '..', 'osudsheba', 'build', 'app', 'outputs', 'flutter-apk', 'app-debug.apk');

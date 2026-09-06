@@ -54,60 +54,79 @@ export default function DownloadGated() {
         </div>
       )}
 
-      {/* STATE A: NOT SUBSCRIBED (GATED EXPERIENCE) */}
+      {/* STATE A: NOT SUBSCRIBED (PUBLIC DOWNLOAD WITH CARRIER SUBSCRIPTION INFO) */}
       {!isLoading && !isSubscribed && (
         <div className="bg-white rounded-3xl border-2 border-slate-200/90 shadow-card p-6 sm:p-10 text-center space-y-6 animate-fade-in">
           
-          <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200/80">
-            <Lock className="w-8 h-8" />
+          <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200/80">
+            <Download className="w-8 h-8" />
           </div>
 
           <div className="space-y-2 max-w-md mx-auto">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/70 text-amber-900 text-xs font-bold">
-              <span>Subscription Required</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-bold">
+              <span>Official Release v1.0.0</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Subscribe to Download OsudSheba
+              Download OsudSheba for Android
             </h2>
             <p className="text-sm text-slate-600 leading-relaxed">
-              OsudSheba Premium is exclusively available for active mobile subscribers on <strong>Robi</strong> and <strong>Airtel Bangladesh</strong>. Activate your daily ৳২ plan to unlock the application.
+              Install the official OsudSheba APK directly on your Android device. Full-screen alarms, Bangla voice reminders, and prescription scanning.
             </p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-left text-xs space-y-2.5 max-w-md mx-auto">
-            <h4 className="font-bold text-slate-800">What is included with your subscription:</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-600">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Full-screen alarms</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>বাংলা ভয়েস এলার্ট</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>AI prescription reader</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Caregiver alerts</span>
-              </div>
+          {/* Primary APK Download CTA */}
+          <div className="space-y-3 pt-2">
+            <a
+              href="/api/subscription/download"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-9 py-4 rounded-xl text-base font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            >
+              <Download className="w-5 h-5" />
+              <span>Download OsudSheba (Android APK)</span>
+            </a>
+
+            <div className="flex items-center justify-center gap-3 text-xs text-slate-500">
+              <span>Version: 1.0.0</span>
+              <span>•</span>
+              <span>Android 8.0+</span>
+              <span>•</span>
+              <span>88.3 MB APK</span>
             </div>
           </div>
 
-          <div className="space-y-3 pt-2">
-            <Link
-              href="/subscribe"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-base font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-600/30 hover:scale-[1.02] transition-all"
-            >
-              <Sparkles className="w-4 h-4 text-emerald-200" />
-              <span>Subscribe Now (৳2/day)</span>
-            </Link>
-            
-            <p className="text-xs text-slate-400">
-              Already subscribed? Visit the subscription page to verify your number and unlock this device.
-            </p>
+          {/* Carrier Subscription Box */}
+          <div className="p-5 rounded-2xl bg-amber-50/80 border border-amber-200/80 text-left text-xs space-y-3 max-w-md mx-auto">
+            <div className="flex items-start gap-2.5">
+              <Lock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-bold text-amber-950 text-sm">Carrier Subscription (Robi / Airtel)</h4>
+                <p className="text-amber-800 text-xs mt-1 leading-relaxed">
+                  OsudSheba Premium features (voice reminders, automated SMS alerts) require an active ৳২/day subscription on your Robi or Airtel SIM. You can subscribe on the web or inside the app.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-1 flex flex-col sm:flex-row gap-2">
+              <Link
+                href="/subscribe"
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 shadow-xs transition-colors"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+                <span>Subscribe on Web (৳2/day)</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Installation steps */}
+          <div className="pt-4 border-t border-slate-100 text-left space-y-3 max-w-md mx-auto">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+              <Smartphone className="w-4 h-4 text-emerald-600" />
+              <span>Quick Installation Steps:</span>
+            </h4>
+            <ol className="space-y-1.5 text-xs text-slate-600 list-decimal list-inside">
+              <li>Click <strong>Download OsudSheba</strong> above to download the APK.</li>
+              <li>Tap the notification to open and install the package.</li>
+              <li>Open the app and log in with your phone number.</li>
+            </ol>
           </div>
 
         </div>
